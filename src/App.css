@@ -1,0 +1,361 @@
+/* ------------------------------------------------------ */
+/*  GLOBAL / LAYOUT                                       */
+/* ------------------------------------------------------ */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #ffffff;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Dark Mode Base */
+.layout.dark {
+  background: #0d0d0d;
+  color: #f0f0f0;
+}
+
+/* ------------------------------------------------------ */
+/*  SIDEBAR                                               */
+/* ------------------------------------------------------ */
+.sidebar {
+  width: 240px;
+  border-right: 2px solid #2da14b;
+  padding: 25px 20px;
+  background: white;
+}
+
+.layout.dark .sidebar {
+  background: #101010;
+  border-right: 2px solid #21c55d;
+}
+
+.logo {
+  font-size: 26px;
+  font-weight: bold;
+  color: #2da14b;
+  margin-bottom: 40px;
+}
+
+.layout.dark .logo {
+  color: #21c55d;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.nav-item {
+  text-decoration: none;
+  font-size: 17px;
+  color: black;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  color: #2da14b;
+}
+
+.layout.dark .nav-item {
+  color: #eee;
+}
+
+.layout.dark .nav-item:hover {
+  color: #21c55d;
+}
+
+/* ------------------------------------------------------ */
+/*  MAIN AREA                                             */
+/* ------------------------------------------------------ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 30px;
+  border-bottom: 2px solid #2da14b;
+  background: white;
+}
+
+.layout.dark .header {
+  background: #101010;
+  border-bottom: 2px solid #21c55d;
+}
+
+.header-icons span {
+  margin-left: 18px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.content {
+  padding: 40px;
+}
+
+/* ------------------------------------------------------ */
+/*  DASHBOARD                                             */
+/* ------------------------------------------------------ */
+.welcome {
+  color: #2da14b;
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.layout.dark .welcome {
+  color: #21c55d;
+}
+
+.age {
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #444;
+}
+
+.layout.dark .age {
+  color: #ccc;
+}
+
+.section-title {
+  color: #2da14b;
+  font-size: 22px;
+  margin: 20px 0 10px;
+  font-weight: bold;
+}
+
+.layout.dark .section-title {
+  color: #21c55d;
+}
+
+.course-card {
+  border: 2px solid #2da14b;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  max-width: 600px;
+  background: white;
+}
+
+.layout.dark .course-card {
+  background: #141414;
+  border: 2px solid #21c55d;
+}
+
+.join-btn {
+  margin-top: 10px;
+  background: #2da14b;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.join-btn:hover {
+  background: #238a3d;
+}
+
+.quote {
+  margin-top: 80px;
+  text-align: center;
+  font-style: italic;
+  font-size: 14px;
+  color: #444;
+}
+
+.layout.dark .quote {
+  color: #ccc;
+}
+
+/* ------------------------------------------------------ */
+/*  MESSAGES PAGE                                         */
+/* ------------------------------------------------------ */
+.messages-wrapper {
+  width: 100%;
+}
+
+.messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #dce3de;
+  padding: 10px 5px;
+  margin-bottom: 10px;
+}
+
+.layout.dark .messages-header {
+  border-bottom: 2px solid #21c55d;
+}
+
+.messages-header h1 {
+  color: #007a33;
+  font-size: 26px;
+  margin: 0;
+}
+
+.layout.dark .messages-header h1 {
+  color: #21c55d;
+}
+
+.role-select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.layout.dark .role-select {
+  background: #222;
+  color: white;
+  border: 1px solid #555;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.filter-btn {
+  border: none;
+  background: none;
+  padding: 8px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #007a33;
+  border-radius: 20px;
+}
+
+.filter-btn.active {
+  background: #007a33;
+  color: white;
+}
+
+.layout.dark .filter-btn {
+  color: #21c55d;
+}
+
+.layout.dark .filter-btn.active {
+  background: #21c55d;
+  color: black;
+}
+
+/* CHAT CONTAINER */
+#messages {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  height: 60vh;
+  overflow-y: auto;
+  padding: 20px;
+  margin-bottom: 10px;
+}
+
+.layout.dark #messages {
+  background: #111;
+  color: white;
+}
+
+/* CHAT BUBBLES */
+.message {
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  max-width: 70%;
+}
+
+.message .meta {
+  font-size: 0.75em;
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+.message.student {
+  background: #e6f9f0;
+  border: 1px solid #a0d5ba;
+}
+
+.message.coach {
+  background: #fff5e0;
+  border: 1px solid #f2c77d;
+}
+
+.message.parent {
+  background: #e8f1ff;
+  border: 1px solid #98bafc;
+}
+
+.message.admin {
+  background: #f3e5f5;
+  border: 1px solid #c69cf3;
+}
+
+/* DARK MODE BUBBLES */
+.layout.dark .message.student {
+  background: #134d36;
+  border-color: #4bcc8c;
+}
+
+.layout.dark .message.coach {
+  background: #4b3a16;
+  border-color: #f2c77d;
+}
+
+.layout.dark .message.parent {
+  background: #25396e;
+  border-color: #7fa3ff;
+}
+
+.layout.dark .message.admin {
+  background: #462a67;
+  border-color: #c69cf3;
+}
+
+/* SEND BAR */
+.chat-form {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-form input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.layout.dark .chat-form input {
+  background: #222;
+  color: white;
+  border: 1px solid #555;
+}
+
+.chat-form button {
+  background: #007a33;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.chat-form button:hover {
+  background: #005e27;
+}
+
+/* ------------------------------------------------------ */
+/*  SETTINGS PAGE                                         */
+/* ------------------------------------------------------ */
+.settings-container {
+  max-width: 600px;
+}
