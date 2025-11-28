@@ -290,7 +290,7 @@ function MessagesPage({ role }) {
         setTimeout(() => {
           if (rec.state !== "inactive") rec.stop();
           setRecording(false);
-        }, 4000);
+        }, 80000);
       } catch {
         alert("Microphone access blocked");
       }
