@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import "./App.css";
 
-// ----------------------------------------------------------
-// LOGIN PAGE
-// ----------------------------------------------------------
+/* ---------------------- LOGIN ---------------------- */
 function LoginPage({ onLogin }) {
   const [role, setRole] = useState("student");
   const [password, setPassword] = useState("");
@@ -12,8 +10,8 @@ function LoginPage({ onLogin }) {
   function login(e) {
     e.preventDefault();
     if (role === "student") return onLogin("student");
-    if (password === "iLOVEyou123123?") return onLogin(role);
-    alert("Incorrect password");
+    if (password === "12345") onLogin(role);
+    else alert("Incorrect password.");
   }
 
   return (
@@ -27,14 +25,15 @@ function LoginPage({ onLogin }) {
           <option value="parent">👨‍👩‍👧 Parent</option>
           <option value="coach">👩‍🏫 Coach</option>
           <option value="admin">🧑‍💼 Admin</option>
+          <option value="deep">🧑 Deep</option>
         </select>
         {role !== "student" && (
           <>
             <label>Password</label>
             <input
               type="password"
-              value={password}
               placeholder="Enter password"
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </>
@@ -45,9 +44,7 @@ function LoginPage({ onLogin }) {
   );
 }
 
-// ----------------------------------------------------------
-// MAIN APP
-// ----------------------------------------------------------
+/* ---------------------- MAIN APP ---------------------- */
 export default function App() {
   const [role, setRole] = useState(null);
   const [dark, setDark] = useState(false);
@@ -59,13 +56,14 @@ export default function App() {
     <BrowserRouter>
       <div className={dark ? "layout dark" : "layout"}>
         <aside className="sidebar">
-          {pfp && <img src={pfp} className="sidebar-pfp" alt="pfp" />}
+          {pfp && <img src={pfp} alt="pfp" className="sidebar-pfp" />}
           <h2 className="logo">IvySchool.ai</h2>
 
           <nav className="nav">
             <Link to="/" className="nav-item">🏠 Dashboard</Link>
             <Link to="/courses" className="nav-item">📘 My Courses</Link>
             <Link to="/messages" className="nav-item">💬 Messages</Link>
+            <Link to="/yoga" className="nav-item">🧘 Yoga</Link>
             <Link to="/settings" className="nav-item">⚙️ Settings</Link>
           </nav>
 
@@ -85,6 +83,7 @@ export default function App() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/courses" element={<MyCoursesPage />} />
               <Route path="/messages" element={<MessagesPage role={role} />} />
+              <Route path="/yoga" element={<YogaPage role={role} />} />
               <Route path="/settings" element={<SettingsPage dark={dark} setDark={setDark} pfp={pfp} setPfp={setPfp} />} />
             </Routes>
           </div>
@@ -94,9 +93,7 @@ export default function App() {
   );
 }
 
-// ----------------------------------------------------------
-// HEADER
-// ----------------------------------------------------------
+/* ---------------------- HEADER ---------------------- */
 function Header({ pfp }) {
   const navigate = useNavigate();
   return (
@@ -110,64 +107,60 @@ function Header({ pfp }) {
   );
 }
 
-// ----------------------------------------------------------
-// DASHBOARD PAGE (COURSES + PROGRESS + PROJECTS)
-// ----------------------------------------------------------
+/* ---------------------- DASHBOARD ---------------------- */
 function DashboardPage() {
   const [courses, setCourses] = useState(() =>
     JSON.parse(localStorage.getItem("ivyschool_progress")) || [
       { title: "AWS Certified Cloud Practitioner", link: "https://meet.google.com/hnn-iwpe-zbg", progress: 0 },
-      { title: "MIT Intro to Python", link: "https://meet.google.com/hnn-iwpe-zbg", progress: 0 }
+      { title: "MIT Intro to Python", link: "https://meet.google.com/hnn-iwpe-zbg", progress: 0 },
+      
     ]
   );
 
-  const [projects, setProjects] = useState(
-    () => JSON.parse(localStorage.getItem("ivyschool_projects") || "[]")
+  const [projects, setProjects] = useState(() =>
+    JSON.parse(localStorage.getItem("ivyschool_projects") || "[]")
   );
 
-  const [newProject, setNewProject] = useState("");
+  const [newProject, setNewProject] = useState({ title: "", desc: "", git: "" });
 
-  function saveProgress(u) {
-    localStorage.setItem("ivyschool_progress", JSON.stringify(u));
+  function saveProg(x) {
+    localStorage.setItem("ivyschool_progress", JSON.stringify(x));
   }
 
-  function saveProjects(u) {
-    localStorage.setItem("ivyschool_projects", JSON.stringify(u));
+  function saveProjects(x) {
+    localStorage.setItem("ivyschool_projects", JSON.stringify(x));
   }
 
-  function openMeet(i, link) {
+  function join(i, link) {
     window.open(link, "_blank", "noopener,noreferrer");
-    setCourses(prev => {
-      const u = [...prev];
-      u[i].progress = Math.min(100, u[i].progress + 5);
-      saveProgress(u);
-      return u;
-    });
+    const updated = [...courses];
+    updated[i].progress = Math.min(100, updated[i].progress + 5);
+    setCourses(updated);
+    saveProg(updated);
   }
 
   function addProject() {
-    const t = newProject.trim();
-    if (!t) return;
-    const u = [...projects, { title: t }];
-    setProjects(u);
-    saveProjects(u);
-    setNewProject("");
+    if (!newProject.title.trim()) return;
+    const updated = [...projects, newProject];
+    setProjects(updated);
+    saveProjects(updated);
+    setNewProject({ title: "", desc: "", git: "" });
   }
 
   function removeProject(i) {
-    const u = projects.filter((_, x) => x !== i);
-    setProjects(u);
-    saveProjects(u);
+    const updated = projects.filter((_, idx) => idx !== i);
+    setProjects(updated);
+    saveProjects(updated);
   }
 
   return (
     <>
-      <h1 className="welcome">Welcome back, Bob Chopra 👋</h1>
+      <h1 className="welcome">Welcome back, Bob 👋</h1>
       <p className="age">Age: 9</p>
 
-      <h2 className="section-title">Your Upcoming Course</h2>
+      <h2 className="section-title">Upcoming Course</h2>
       <div className="course-card">
-        <h3>Full Stack Development with MERN – MITx PRO</h3>
+        <h3>Full Stack Development with MERN – MITX PRO</h3>
         <p>Prepare yourself for the next exciting module!</p>
       </div>
 
@@ -176,33 +169,25 @@ function DashboardPage() {
         <div className="course-card" key={i}>
           <h3>{c.title}</h3>
           <p>Progress: {c.progress}%</p>
-          <button className="join-btn" onClick={() => openMeet(i, c.link)}>Join Class →</button>
+          <button className="join-btn" onClick={() => join(i, c.link)}>Join Class →</button>
         </div>
       ))}
 
       <h2 className="section-title">Your Projects</h2>
       <div className="course-card">
         <h3>Add New Project</h3>
-        <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-          <input
-            type="text"
-            value={newProject}
-            placeholder="Project name..."
-            onChange={(e) => setNewProject(e.target.value)}
-            style={{ flex: 1, padding: 8, borderRadius: 7, border: "1px solid #ccc" }}
-          />
-          <button className="join-btn" onClick={addProject}>Add</button>
-        </div>
+        <input placeholder="Project title" value={newProject.title} onChange={(e) => setNewProject({ ...newProject, title: e.target.value })} />
+        <input placeholder="Description" value={newProject.desc} onChange={(e) => setNewProject({ ...newProject, desc: e.target.value })} />
+        <input placeholder="GitHub URL" value={newProject.git} onChange={(e) => setNewProject({ ...newProject, git: e.target.value })} />
+        <button className="join-btn" onClick={addProject}>Submit</button>
       </div>
 
       {projects.map((p, i) => (
         <div className="course-card" key={i}>
           <h3>{p.title}</h3>
-          <button
-            className="join-btn"
-            style={{ background: "#b91c1c", marginTop: 8 }}
-            onClick={() => removeProject(i)}
-          >
+          <p>{p.desc}</p>
+          {p.git && <a href={p.git} target="_blank" rel="noreferrer" className="git">GitHub ↗</a>}
+          <button className="join-btn" style={{ background: "#b91c1c", marginTop: 10 }} onClick={() => removeProject(i)}>
             Remove
           </button>
         </div>
@@ -213,14 +198,11 @@ function DashboardPage() {
   );
 }
 
-// ----------------------------------------------------------
-// MY COURSES PAGE
-// ----------------------------------------------------------
+/* ---------------------- MY COURSES ---------------------- */
 function MyCoursesPage() {
-  const [courses] = useState(
-    () => JSON.parse(localStorage.getItem("ivyschool_progress")) || []
+  const [courses] = useState(() =>
+    JSON.parse(localStorage.getItem("ivyschool_progress")) || []
   );
-
   return (
     <>
       <h1 className="welcome">📘 My Courses</h1>
@@ -233,111 +215,72 @@ function MyCoursesPage() {
     </>
   );
 }
-
-// ----------------------------------------------------------
-// MESSAGES PAGE (PRIVATE + PUBLIC + TEXT + IMAGE + AUDIO + PREVIEW)
-// ----------------------------------------------------------
+/* ---------------------- MESSAGES (Version C) ---------------------- */
 function MessagesPage({ role }) {
-  const [messages, setMessages] = useState(
-    () => JSON.parse(localStorage.getItem("ivyschool_messages") || "[]")
+  const [messages, setMessages] = useState(() =>
+    JSON.parse(localStorage.getItem("ivyschool_messages") || "[]")
   );
-  const [filter, setFilter] = useState("all");
   const [sendTo, setSendTo] = useState("everyone");
   const [text, setText] = useState("");
-  const [fileData, setFileData] = useState(null);
-  const [recording, setRecording] = useState(false);
-
-  const messagesRef = useRef(null);
-  const recorderRef = useRef(null);
-  const chunksRef = useRef([]);
+  const [file, setFile] = useState(null);
+  const preview = file !== null;
+  const box = useRef();
 
   useEffect(() => {
-    if (messagesRef.current)
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-  }, [messages, filter]);
+    if (box.current) box.current.scrollTop = box.current.scrollHeight;
+  }, [messages]);
 
-  function save(u) {
-    localStorage.setItem("ivyschool_messages", JSON.stringify(u));
+  function save(x) {
+    localStorage.setItem("ivyschool_messages", JSON.stringify(x));
   }
 
-  function handleImage(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+  function handlePic(e) {
+    const f = e.target.files[0];
+    if (!f) return;
     const r = new FileReader();
-    r.onload = () => setFileData({ type: "image", data: r.result });
-    r.readAsDataURL(file);
+    r.onload = () => setFile({ type: "image", data: r.result });
+    r.readAsDataURL(f);
   }
 
-  async function toggleRecording() {
-    if (!recording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const rec = new MediaRecorder(stream);
-        recorderRef.current = rec;
-        chunksRef.current = [];
-
-        rec.ondataavailable = (e) => chunksRef.current.push(e.data);
-        rec.onstop = () => {
-          const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-          const r = new FileReader();
-          r.onload = () => setFileData({ type: "audio", data: r.result });
-          r.readAsDataURL(blob);
-          stream.getTracks().forEach((t) => t.stop());
-        };
-
-        rec.start();
-        setRecording(true);
-        setTimeout(() => {
-          if (rec.state !== "inactive") rec.stop();
-          setRecording(false);
-        }, 80000);
-      } catch {
-        alert("Microphone access blocked");
-      }
-    } else {
-      recorderRef.current.stop();
-      setRecording(false);
+  async function mic() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream);
+      let chunks = [];
+      rec.ondataavailable = (e) => chunks.push(e.data);
+      rec.onstop = () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        const r = new FileReader();
+        r.onload = () => setFile({ type: "audio", data: r.result });
+        r.readAsDataURL(blob);
+      };
+      rec.start();
+      setTimeout(() => rec.stop(), 4000);
+    } catch {
+      alert("Microphone blocked.");
     }
   }
 
-  function sendMsg(e) {
+  function send(e) {
     e.preventDefault();
-    if (!text.trim() && !fileData) return;
-
+    if (!text.trim() && !file) return;
     const msg = {
       from: role,
       to: sendTo,
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      type: fileData ? fileData.type : "text",
-      content: fileData ? fileData.data : text.trim(),
-      caption: fileData && text.trim() ? text.trim() : null
+      type: file ? file.type : "text",
+      content: file ? file.data : text.trim(),
     };
-
-    const u = [...messages, msg];
-    setMessages(u);
-    save(u);
+    const updated = [...messages, msg];
+    setMessages(updated);
+    save(updated);
     setText("");
-    setFileData(null);
+    setFile(null);
   }
 
-  const visibleMessages = messages.filter((m) => {
-    if (m.to === "everyone") return true;
-    if (m.from === role) return true;
-    if (m.to === role) return true;
-    return false;
-  });
-  
-
-  let filtered;
-  if (filter === "all") {
-    filtered = visibleMessages.filter((m) => m.to === "everyone");
-  } else {
-    filtered = visibleMessages.filter(
-      (m) =>
-        (m.from === filter && m.to === role) ||
-        (m.to === filter && m.from === role)
-    );
-  }
+  const visible = messages.filter(
+    (m) => m.to === "everyone" || m.from === role || m.to === role
+  );
 
   return (
     <div className="messages-wrapper">
@@ -348,130 +291,163 @@ function MessagesPage({ role }) {
         </div>
       </div>
 
-      <div className="filter-bar">
-        {["all", "student", "parent", "coach", "admin"].map((f) => (
-          <button
-            key={f}
-            className={`filter-btn ${filter === f ? "active" : ""}`}
-            onClick={() => setFilter(f)}
-          >
-            {f.toUpperCase()}
-          </button>
-        ))}
-      </div>
-
       <div style={{ margin: "10px 16px", fontSize: 14 }}>
-        Send to:
-        <select value={sendTo} onChange={(e) => setSendTo(e.target.value)} className="role-select">
-          <option value="everyone">Everyone (Public)</option>
-          <option value="student">Student (Private)</option>
-          <option value="parent">Parent (Private)</option>
-          <option value="coach">Coach (Private)</option>
-          <option value="admin">Admin (Private)</option>
-        </select>
+        <label>
+          Send to:{" "}
+          <select
+            value={sendTo}
+            onChange={(e) => setSendTo(e.target.value)}
+            className="role-select"
+          >
+            <option value="everyone">Everyone (Public)</option>
+            <option value="student">Student</option>
+            <option value="parent">Parent</option>
+            <option value="coach">Coach</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
       </div>
 
-      {fileData && (
-        <div style={{
-          padding: "10px 15px",
-          borderBottom: "1px solid var(--border)",
-          display: "flex",
-          gap: 12,
-          alignItems: "center"
-        }}>
-          {fileData.type === "image" && (
-            <img src={fileData.data} alt="preview" style={{ maxWidth: 120, borderRadius: 8 }} />
-          )}
-          {fileData.type === "audio" && (
-            <audio controls src={fileData.data} style={{ width: 200 }} />
-          )}
-          <button
-            type="button"
-            onClick={() => setFileData(null)}
-            style={{
-              background: "#b91c1c",
-              color: "white",
-              border: "none",
-              padding: "6px 10px",
-              borderRadius: 6,
-              cursor: "pointer"
-            }}
-          >
-            ✖
-          </button>
-        </div>
-      )}
-
-      <div id="messages" ref={messagesRef}>
-        {filtered.map((m, i) => (
+      <div id="messages" ref={box}>
+        {visible.map((m, i) => (
           <div className={`message ${m.from}`} key={i}>
             {m.type === "text" && <p>{m.content}</p>}
             {m.type === "image" && (
-              <>
-                <img src={m.content} alt="sent" style={{ maxWidth: 220, borderRadius: 8 }} />
-                {m.caption && <p style={{ marginTop: 6 }}>{m.caption}</p>}
-              </>
+              <img
+                src={m.content}
+                style={{ maxWidth: 200, borderRadius: 8 }}
+                alt="uploaded"
+              />
             )}
-            {m.type === "audio" && (
-              <>
-                <audio controls src={m.content} style={{ width: 220 }} />
-                {m.caption && <p style={{ marginTop: 6 }}>{m.caption}</p>}
-              </>
-            )}
+            {m.type === "audio" && <audio controls src={m.content} />}
             <div className="meta">
-              {m.from.toUpperCase()} → {m.to === "everyone" ? "EVERYONE" : m.to.toUpperCase()} | {m.time}
+              {m.from.toUpperCase()} →{" "}
+              {m.to === "everyone" ? "EVERYONE" : m.to.toUpperCase()} | {m.time}
             </div>
           </div>
         ))}
       </div>
 
-      <form className="chat-form" onSubmit={sendMsg}>
+      {preview && (
+        <div className="preview">
+          <span className="x" onClick={() => setFile(null)}>
+            ✖
+          </span>
+          {file.type === "image" && (
+            <img src={file.data} style={{ maxWidth: 120 }} alt="preview" />
+          )}
+          {file.type === "audio" && <audio controls src={file.data} />}
+        </div>
+      )}
+
+      <form className="chat-form" onSubmit={send}>
         <input
-          type="text"
+          placeholder={`Send a message as ${role}...`}
           value={text}
-          placeholder={`Send a message as ${role}…`}
           onChange={(e) => setText(e.target.value)}
         />
         <label className="file-btn">
           📷
-          <input type="file" accept="image/*" onChange={handleImage} hidden />
+          <input type="file" hidden accept="image/*" onChange={handlePic} />
         </label>
-        <button type="button" className="mic-btn" onClick={toggleRecording}>
-          {recording ? "⏺" : "🎤"}
+        <button type="button" className="mic-btn" onClick={mic}>
+          🎤
         </button>
-        <button
-          type="button"
-          className="call-btn"
-          onClick={() => startCall(sendTo)}
-        >
-          📞 Call
-        </button>
-
         <button type="submit">Send ➤</button>
       </form>
-      
     </div>
-    
   );
 }
 
-// ----------------------------------------------------------
-// SETTINGS PAGE
-// ----------------------------------------------------------
+/* ---------------------- YOGA PAGE ---------------------- */
+/* ---------------------- YOGA PAGE (UPGRADED) ---------------------- */
+function YogaPage({ role }) {
+  const navigate = useNavigate();
+  const yogaCourse = {
+    title: "IIY Introduction. yoga",
+    link: "https://www.ivyschool.ai",
+  };
+
+  return (
+    <div>
+      <h1 className="welcome">🧘 Yoga Dashboard</h1>
+
+      <div className="yoga-card">
+        <h2>{yogaCourse.title}</h2>
+        <p style={{ marginBottom: 12 }}>
+          A calm mind is a sharp mind — let's strengthen both.
+        </p>
+
+        <button
+          className="join-btn"
+          onClick={() => window.open(yogaCourse.link, "_blank", "noopener,noreferrer")}
+        >
+          Start Practice →
+        </button>
+
+    
+      </div>
+
+      <h2 className="section-title">Message Your Coaches</h2>
+
+      <button
+        className="join-btn"
+        onClick={() => navigate("/messages", { state: { target: "coach" } })}
+      >
+        Message Deep 💬
+      </button>
+
+      <button
+        className="join-btn"
+        style={{ marginTop: 10 }}
+        onClick={() => navigate("/messages", { state: { target: "student" } })}
+      >
+        Message Bob 💬
+      </button>
+      <div className="yoga-video-card">
+        <h3>Welcome to Yoga 🧘‍♂️</h3>
+        <p style={{ marginBottom: "14px" }}>
+          Start your yoga journey with this short intro from Deep.
+        </p>
+
+        <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden", borderRadius: "16px" }} id="video-container">
+          <iframe
+            src="https://www.youtube.com/embed/Uxy8Sgzlts4"
+            title="Yoga Intro"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              borderRadius: "16px"
+            }}
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ---------------------- SETTINGS ---------------------- */
 function SettingsPage({ dark, setDark, pfp, setPfp }) {
-  function updatePfp(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+  function updatePic(e) {
+    const f = e.target.files[0];
+    if (!f) return;
     const r = new FileReader();
     r.onload = () => {
       localStorage.setItem("ivyschool_pfp", r.result);
       setPfp(r.result);
     };
-    r.readAsDataURL(file);
+    r.readAsDataURL(f);
   }
 
   return (
-    <>
+    <div>
       <h1 className="welcome">⚙️ Settings</h1>
 
       <div className="course-card">
@@ -492,18 +468,18 @@ function SettingsPage({ dark, setDark, pfp, setPfp }) {
         {pfp && (
           <img
             src={pfp}
+            alt="pfp"
             style={{
               width: 120,
               height: 120,
               borderRadius: "50%",
               objectFit: "cover",
-              marginBottom: 10
+              marginBottom: 10,
             }}
-            alt="pfp"
           />
         )}
-        <input type="file" accept="image/*" onChange={updatePfp} />
+        <input type="file" accept="image/*" onChange={updatePic} />
       </div>
-    </>
+    </div>
   );
 }
