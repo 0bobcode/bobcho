@@ -326,6 +326,7 @@ function MessagesPage({ role }) {
     if (m.to === role) return true;
     return false;
   });
+  
 
   let filtered;
   if (filter === "all") {
@@ -438,9 +439,19 @@ function MessagesPage({ role }) {
         <button type="button" className="mic-btn" onClick={toggleRecording}>
           {recording ? "⏺" : "🎤"}
         </button>
+        <button
+          type="button"
+          className="call-btn"
+          onClick={() => startCall(sendTo)}
+        >
+          📞 Call
+        </button>
+
         <button type="submit">Send ➤</button>
       </form>
+      
     </div>
+    
   );
 }
 
