@@ -564,7 +564,7 @@ function YogaPage() {
         <div id="video-container">
           <iframe
             width="100%"
-            height="220"
+            height="420px"
             src="https://www.youtube.com/embed/Uxy8Sgzlts4"
             title="Yoga Intro"
             frameBorder="0"
