@@ -5,7 +5,7 @@ import "./App.css";
 // --- STATIC DATA FOR CHILDREN AND COURSES (Updated with Verification Status) ---
 const CHILDREN_DATA = [
   { name: "Bob", age: 9, id: "bob", parent: "Mr. Chopra", verified: true, courses: [{ title: "AWS Certified Cloud Practitioner", progress: 60, link: "https://meet.google.com/hnn-iwpe-zbg" }] },
-  { name: "Max", age: 10, id: "max", parent: "Mrs. Davis", verified: false, courses: [{ title: "MIT Intro to Python", progress: 40, link: "https://meet.google.com/xyz-abc-123" }] },
+  { name: "Max", age: 10, id: "max", parent: "Mrs. Davis", verified: true, courses: [{ title: "MIT Intro to Python", progress: 40, link: "https://meet.google.com/xyz-abc-123" }] },
   { name: "Lilly", age: 7, id: "lilly", parent: "Mrs. Davis", verified: true, courses: [{ title: "Yoga & Mindfulness", progress: 100, link: "https://meet.google.com/lmn-opq-789" }] },
   { name: "Zak", age: 12, id: "zak", parent: "Mr. Lee", verified: false, courses: [{ title: "Full Stack Development with MERN", progress: 10, link: "https://meet.google.com/rst-uvw-456" }] },
 ];
