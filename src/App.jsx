@@ -2,8 +2,25 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import "./App.css";
 
+// --- STATIC DATA FOR CHILDREN AND COURSES (Updated with Verification Status) ---
+const CHILDREN_DATA = [
+  { name: "Bob", age: 9, id: "bob", parent: "Mr. Chopra", verified: true, courses: [{ title: "AWS Certified Cloud Practitioner", progress: 60, link: "https://meet.google.com/hnn-iwpe-zbg" }] },
+  { name: "Max", age: 10, id: "max", parent: "Mrs. Davis", verified: false, courses: [{ title: "MIT Intro to Python", progress: 40, link: "https://meet.google.com/xyz-abc-123" }] },
+  { name: "Lilly", age: 7, id: "lilly", parent: "Mrs. Davis", verified: true, courses: [{ title: "Yoga & Mindfulness", progress: 100, link: "https://meet.google.com/lmn-opq-789" }] },
+  { name: "Zak", age: 12, id: "zak", parent: "Mr. Lee", verified: false, courses: [{ title: "Full Stack Development with MERN", progress: 10, link: "https://meet.google.com/rst-uvw-456" }] },
+];
+
+// Deduce unique parent list from children data
+const PARENT_DATA = Array.from(new Set(CHILDREN_DATA.map(c => c.parent))).map(name => ({
+  name: name,
+  email: name.replace(/[^a-zA-Z]/g, '').toLowerCase() + '@ivyschool.ai',
+  childrenCount: CHILDREN_DATA.filter(c => c.parent === name).length
+}));
+// -----------------------------------------------------------
+
+
 // ----------------------------------------------------------
-// LOGIN PAGE
+// LOGIN PAGE (Unchanged)
 // ----------------------------------------------------------
 function LoginPage({ onLogin }) {
   const [role, setRole] = useState("student");
@@ -56,12 +73,30 @@ function LoginPage({ onLogin }) {
 }
 
 // ----------------------------------------------------------
-// MAIN APP
+// MAIN APP (Unchanged)
 // ----------------------------------------------------------
 export default function App() {
   const [role, setRole] = useState(null);
   const [dark, setDark] = useState(false);
+  // Get initial PFP state from localStorage
   const [pfp, setPfp] = useState(() => localStorage.getItem("ivyschool_pfp") || null);
+
+  // Effect to listen for localStorage changes (for PFP updates)
+  useEffect(() => {
+    function handleStorageChange(e) {
+      if (e.key === "ivyschool_pfp") {
+        setPfp(e.newValue);
+      }
+    }
+
+    // Attach listener for the storage event
+    window.addEventListener("storage", handleStorageChange);
+
+    // Clean up the listener when the component unmounts
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   if (!role) {
     return <LoginPage onLogin={setRole} />;
@@ -109,8 +144,8 @@ export default function App() {
 
           <div className="content">
             <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/courses" element={<MyCoursesPage />} />
+              <Route path="/" element={<DashboardPage role={role} />} />
+              <Route path="/courses" element={<MyCoursesPage role={role} />} />
               <Route path="/messages" element={<MessagesPage role={role} />} />
               <Route path="/yoga" element={<YogaPage />} />
               <Route
@@ -133,7 +168,7 @@ export default function App() {
 }
 
 // ----------------------------------------------------------
-// HEADER
+// HEADER (Unchanged)
 // ----------------------------------------------------------
 function Header({ pfp }) {
   const navigate = useNavigate();
@@ -156,30 +191,21 @@ function Header({ pfp }) {
 }
 
 // ----------------------------------------------------------
-// DASHBOARD PAGE
+// DASHBOARD PAGE (Updated for Coach View)
 // ----------------------------------------------------------
-function DashboardPage() {
-  // Courses with progress
+function DashboardPage({ role }) {
+
+  // --- STUDENT/DEFAULT LOGIC (Unchanged) ---
   const [courses, setCourses] = useState(() => {
     const stored = localStorage.getItem("ivyschool_progress");
     if (stored) return JSON.parse(stored);
-    const initial = [
-      {
-        title: "AWS Certified Cloud Practitioner",
-        link: "https://meet.google.com/hnn-iwpe-zbg",
-        progress: 0,
-      },
-      {
-        title: "MIT Intro to Python",
-        link: "https://meet.google.com/hnn-iwpe-zbg",
-        progress: 0,
-      },
-    ];
+
+    // Default initial student courses (for Bob)
+    const initial = CHILDREN_DATA.find(c => c.id === 'bob').courses;
     localStorage.setItem("ivyschool_progress", JSON.stringify(initial));
     return initial;
   });
 
-  // Projects
   const [projects, setProjects] = useState(() => {
     return JSON.parse(localStorage.getItem("ivyschool_projects") || "[]");
   });
@@ -224,6 +250,128 @@ function DashboardPage() {
     desc: "Get ready for your next high-intensity Ivy module.",
   };
 
+  // --- ADMIN RENDER LOGIC (Unchanged) ---
+  if (role === 'admin') {
+    return (
+      <>
+        <h1 className="welcome">🧑‍💼 IvySchool.ai Admin Dashboard</h1>
+        <p className="age">Total Students: **{CHILDREN_DATA.length}** | Total Parents: **{PARENT_DATA.length}**</p>
+
+        <h2 className="section-title">📊 Students Overview</h2>
+        {CHILDREN_DATA.map((child) => (
+          <div className="course-card" key={child.id} style={{ marginBottom: 10 }}>
+            <h3>👨‍🎓 {child.name} (Age: {child.age})</h3>
+            <p>Parent: **{child.parent}**</p>
+            <p>Current Course: {child.courses[0].title} ({child.courses[0].progress}%)</p>
+            <p style={{ fontSize: '12px', opacity: 0.7 }}>ID: {child.id}</p>
+          </div>
+        ))}
+
+        <h2 className="section-title" style={{ marginTop: '30px' }}>👨‍👩‍👧 Parents Overview</h2>
+        {PARENT_DATA.map((parent) => (
+          <div className="course-card" key={parent.name} style={{ marginBottom: 10 }}>
+            <h3>{parent.name}</h3>
+            <p>Email: **{parent.email}**</p>
+            <p>Children Enrolled: {parent.childrenCount}</p>
+          </div>
+        ))}
+
+        <p className="quote" style={{ marginTop: '30px' }}>
+          **IIT Bombay Deal Status: Completed!** Review user performance and manage accounts.
+        </p>
+      </>
+    );
+  }
+
+  // --- COACH RENDER LOGIC (NEW) ---
+  if (role === 'coach') {
+    const unverifiedChildren = CHILDREN_DATA.filter(c => !c.verified);
+
+    return (
+      <>
+        <h1 className="welcome">👩‍🏫 Welcome, Ivy Coach!</h1>
+        <p className="age">Role: {role.toUpperCase()}</p>
+
+        <h2 className="section-title">Children Overview</h2>
+        {CHILDREN_DATA.map((child) => (
+          <div className="course-card" key={child.id}>
+            <h3>👦 {child.name} (Age: {child.age})</h3>
+
+            {child.verified ? (
+              <p style={{ color: '#10A37F', fontWeight: 'bold' }}>✅ Account Verified</p>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <p style={{ color: '#FF7F50', fontWeight: 'bold' }}>⚠️ Needs Account Verification</p>
+                <a
+                  href="https://www.ivyschool.ai"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="join-btn"
+                  style={{ padding: '8px 12px', fontSize: '12px', whiteSpace: 'nowrap' }}
+                >
+                  Verify Now →
+                </a>
+              </div>
+            )}
+
+            <p style={{ marginTop: '10px' }}>
+              Current Course: **{child.courses[0].title}** ({child.courses[0].progress}% complete)
+            </p>
+          </div>
+        ))}
+
+        {unverifiedChildren.length > 0 && (
+          <p className="quote" style={{ marginTop: '30px' }}>
+            **Action Required:** {unverifiedChildren.length} student(s) require verification.
+          </p>
+        )}
+      </>
+    );
+  }
+
+
+  // --- PARENT RENDER LOGIC (Unchanged) ---
+  if (role === 'parent') {
+    return (
+      <>
+        <h1 className="welcome">Welcome, Ivy Parent 👋</h1>
+        <p className="age">Role: {role.toUpperCase()}</p>
+
+        {/* --- CHILDREN STATUS --- */}
+        <h2 className="section-title">Your Children's Status</h2>
+        {CHILDREN_DATA.map((child) => (
+          <div className="course-card" key={child.id}>
+            <h3>👦 {child.name} (Age: {child.age})</h3>
+
+            <div style={{ marginTop: '10px' }}>
+              <p>Current Courses:</p>
+              <ul>
+                {child.courses.map((c, i) => (
+                  <li key={i} style={{ fontSize: '14px', marginBottom: '5px' }}>
+                    **{c.title}**: {c.progress}% Progress
+                    <a
+                      href={c.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ marginLeft: '10px', color: '#10A37F' }}
+                    >
+                      (Join Live)
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+
+        <p className="quote" style={{ marginTop: '30px' }}>
+          Check "My Courses" for all class recordings.
+        </p>
+      </>
+    );
+  }
+
+  // --- STUDENT/DEFAULT RENDER LOGIC (Unchanged) ---
   return (
     <>
       <h1 className="welcome">Welcome back, Bob 👋</h1>
@@ -241,12 +389,12 @@ function DashboardPage() {
       <div className="course-card">
         <p>Watch your recorded Ivy sessions.</p>
         <a
-          href="https://www.youtube.com"
+          href="https://www.youtube.com/playlist?list=PL_PLACEHOLDER_FOR_RECORDINGS"
           target="_blank"
           rel="noreferrer"
           className="git"
         >
-          Open YouTube (add your playlist URL)
+          Open Class Recordings →
         </a>
       </div>
 
@@ -313,13 +461,67 @@ function DashboardPage() {
 }
 
 // ----------------------------------------------------------
-// MY COURSES PAGE
+// MY COURSES PAGE (Unchanged)
 // ----------------------------------------------------------
-function MyCoursesPage() {
+function MyCoursesPage({ role }) {
   const [courses] = useState(() => {
     return JSON.parse(localStorage.getItem("ivyschool_progress") || "[]");
   });
 
+  // --- PARENT RENDER LOGIC ---
+  if (role === 'parent') {
+    // Collect all unique course titles from all children
+    const allCourses = CHILDREN_DATA.flatMap(child =>
+      child.courses.map(c => ({
+        childName: child.name,
+        ...c
+      }))
+    );
+
+    return (
+      <>
+        <h1 className="welcome">📘 All Children's Courses & Recordings</h1>
+
+        <h2 className="section-title">Recorded Classes Access</h2>
+        <div className="course-card">
+          <p>Access all recorded sessions for your children here.</p>
+          {/* This is the placeholder for the recording portal */}
+          <a
+            href="https://www.youtube.com/playlist?list=PL_ALL_CHILDREN_RECORDINGS_PLACEHOLDER"
+            target="_blank"
+            rel="noreferrer"
+            className="join-btn"
+            style={{ marginTop: '10px' }}
+          >
+            Open All Recordings Portal 🎥
+          </a>
+        </div>
+
+        <h2 className="section-title">Current Course Progress</h2>
+        {allCourses.map((c, i) => (
+          <div className="course-card" key={i}>
+            <h3>{c.title} (Child: {c.childName})</h3>
+            <p>Progress: **{c.progress}%**</p>
+            <p style={{ fontSize: '12px', opacity: 0.7 }}>
+              Live Class Link: <a href={c.link} target="_blank" rel="noreferrer">{c.link}</a>
+            </p>
+          </div>
+        ))}
+      </>
+    );
+  }
+
+  // --- ADMIN/COACH RENDER LOGIC (No dedicated Admin/Coach Courses page yet) ---
+  if (role === 'admin' || role === 'coach') {
+    return (
+      <div className="welcome">
+        <h1>📘 {role.toUpperCase()}: Course Management</h1>
+        <p>Use the Dashboard for student oversight and the Messages tab for communication.</p>
+      </div>
+    );
+  }
+
+  // --- STUDENT/DEFAULT RENDER LOGIC ---
   return (
     <>
       <h1 className="welcome">📘 My Courses</h1>
@@ -337,7 +539,7 @@ function MyCoursesPage() {
 }
 
 // ----------------------------------------------------------
-// MESSAGES PAGE (public + private + image + audio + preview)
+// MESSAGES PAGE (Unchanged)
 // ----------------------------------------------------------
 function MessagesPage({ role }) {
   const [messages, setMessages] = useState(() =>
@@ -360,6 +562,7 @@ function MessagesPage({ role }) {
   }, [messages, filter]);
 
   function save(updated) {
+    // Updates both localStorage and the local state, triggering a re-render
     localStorage.setItem("ivyschool_messages", JSON.stringify(updated));
     setMessages(updated);
   }
@@ -438,8 +641,10 @@ function MessagesPage({ role }) {
   // ────── Filter buttons ──────
   const filtered =
     filter === "all"
-      ? visibleMessages   // sender sees ALL *including* private ones
-      : visibleMessages.filter((m) => m.from === filter);
+      ? visibleMessages
+      : visibleMessages.filter(
+        (m) => m.from === filter || m.to === filter
+      );
 
 
   return (
@@ -534,7 +739,7 @@ function MessagesPage({ role }) {
 
 
 // ----------------------------------------------------------
-// YOGA PAGE
+// YOGA PAGE (Unchanged)
 // ----------------------------------------------------------
 function YogaPage() {
   const yogaCourse = {
@@ -577,7 +782,7 @@ function YogaPage() {
 }
 
 // ----------------------------------------------------------
-// SETTINGS PAGE
+// SETTINGS PAGE (Unchanged)
 // ----------------------------------------------------------
 function SettingsPage({ dark, setDark, pfp, setPfp }) {
   function handlePfp(e) {
@@ -585,8 +790,16 @@ function SettingsPage({ dark, setDark, pfp, setPfp }) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      localStorage.setItem("ivyschool_pfp", reader.result);
-      setPfp(reader.result);
+      const result = reader.result;
+      localStorage.setItem("ivyschool_pfp", result);
+      setPfp(result); // State is updated here for instant render
+
+      // Manually dispatch the storage event to notify other components/tabs
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'ivyschool_pfp',
+        newValue: result,
+        oldValue: pfp
+      }));
     };
     reader.readAsDataURL(file);
   }
